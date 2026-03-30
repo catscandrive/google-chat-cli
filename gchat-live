@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+if [ ! -d .venv ]; then
+  uv venv >/dev/null
+fi
+uv pip install --python .venv/bin/python -q -r <(python3 - <<'PY'
+import tomllib
+from pathlib import Path
+p=Path('pyproject.toml')
+data=tomllib.loads(p.read_text())
+for dep in data['project']['dependencies']:
+    print(dep)
+PY
+)
+exec .venv/bin/python gchat_live.py "$@"
